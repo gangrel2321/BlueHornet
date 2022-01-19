@@ -1,0 +1,1 @@
+image_types = {".jpg", ".jpeg", ".png", ".webp", ".tif", ".tiff", ".bmp", ".gif", ".raw"}
