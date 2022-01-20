@@ -24,8 +24,8 @@ class Hornet(object):
         self.out_dir = args.out_dir
         if self.in_dir == self.out_dir: 
             warnings.warn("Output and input directories are identical.")
-        if not Path(self.out_dir).exists:
-            Path.mkdir(self.out_dir)
+        if not Path(self.out_dir).exists():
+            Path(self.out_dir).mkdir(exist_ok=True)
 
     def run(self):
         if self.files is None:
@@ -49,20 +49,25 @@ class Hornet(object):
         top_cut = (img.size[1] - self.dim[1]) // 2
         border = (side_cut, top_cut, side_cut, top_cut)
         img = ImageOps.crop(img, border)
-        img.save(self.out_dir + file.name)
+        final_path = Path(self.out_dir).joinpath(file.name)
+        img.save(final_path)
 
     def resize_glob(self,file):
         img = Image.open(file)
         img = img.resize((self.dim[0], self.dim[1]), Image.ANTIALIAS)
-        img.save(self.out_dir + file.name)
+        final_path = Path(self.out_dir).joinpath(file.name)
+        img.save(final_path)
 
     def fit_glob(self, file):
         img = Image.open(file)
         img = ImageOps.fit(img, (self.dim[0], self.dim[1]))
-        img.save(self.out_dir + file.name)
+        final_path = Path(self.out_dir).joinpath(file.name)
+        img.save(final_path)
 
     def smart_resize_glob(self, file):
         img = Image.open(file)
+        final_path = Path(self.out_dir).joinpath(file.name)
+
         if img.size[0] == img.size[1]:
             self.resize_glob(self, file)
         else:
@@ -71,13 +76,13 @@ class Hornet(object):
                 border = (side_cut, 0, side_cut, 0)
                 img = ImageOps.crop(img, border)
                 img = img.resize((self.dim[0], self.dim[1]), Image.ANTIALIAS)
-                img.save(self.out_dir + file.name)
+                img.save(final_path)
             else:
                 top_cut = (img.size[1] - self.dim[1]) // 2
                 border = (0, top_cut, 0, top_cut)
                 img = ImageOps.crop(img, border)
                 img = img.resize((self.dim[0], self.dim[1]), Image.ANTIALIAS)
-                img.save(self.out_dir + file.name)
+                img.save(final_path)
 
     def extract(self):
         self.files = list(p.resolve() for p in Path(self.in_dir).rglob("*") if p.suffix in lib.image_types)
@@ -89,10 +94,10 @@ class Hornet(object):
                             choices=['crop','resize','fit','smart-resize'], 
                             help='crop: Crop images in the dataset to desired size\n'
                             'resize: Resize images to desired size')
-        parser.add_argument('--in_dir', type=str, help='Path to input direcotry of images')
-        parser.add_argument('--out_dir', type=str, help='Path to directory where processed images will go')
+        parser.add_argument('--in_dir', type=str, required=True, help='Path to input direcotry of images')
+        parser.add_argument('--out_dir', type=str, required=True, help='Path to directory where processed images will go')
         parser.add_argument('--num_cores', type=int, default=cpu_count()-1, help='Number of CPU cores to utilize')
-        parser.add_argument('--dim', nargs=2, metavar=('width','height'), help='Pair of "width height" values for resultant image')
+        parser.add_argument('--dim', nargs=2, type=int, required=True, metavar=('width','height'), help='Pair of "width height" values for resultant image')
 
         args = parser.parse_args()
         return args
