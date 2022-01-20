@@ -22,6 +22,7 @@ class Hornet(object):
         self.files = None
         self.in_dir = args.in_dir
         self.out_dir = args.out_dir
+        self.out_type = args.out_type
         if self.in_dir == self.out_dir: 
             warnings.warn("Output and input directories are identical.")
         if not Path(self.out_dir).exists():
@@ -50,23 +51,32 @@ class Hornet(object):
         border = (side_cut, top_cut, side_cut, top_cut)
         img = ImageOps.crop(img, border)
         final_path = Path(self.out_dir).joinpath(file.name)
+        if self.out_type:
+            final_path.rename(final_path.with_suffix(self.out_type)) 
+
         img.save(final_path)
 
     def resize_glob(self,file):
         img = Image.open(file)
         img = img.resize((self.dim[0], self.dim[1]), Image.ANTIALIAS)
         final_path = Path(self.out_dir).joinpath(file.name)
+        if self.out_type:
+            final_path.rename(final_path.with_suffix(self.out_type)) 
         img.save(final_path)
 
     def fit_glob(self, file):
         img = Image.open(file)
         img = ImageOps.fit(img, (self.dim[0], self.dim[1]))
         final_path = Path(self.out_dir).joinpath(file.name)
+        if self.out_type:
+            final_path.rename(final_path.with_suffix(self.out_type)) 
         img.save(final_path)
 
     def smart_resize_glob(self, file):
         img = Image.open(file)
         final_path = Path(self.out_dir).joinpath(file.name)
+        if self.out_type:
+            final_path.rename(final_path.with_suffix(self.out_type)) 
 
         if img.size[0] == img.size[1]:
             self.resize_glob(self, file)
@@ -98,7 +108,7 @@ class Hornet(object):
         parser.add_argument('--out_dir', type=str, required=True, help='Path to directory where processed images will go')
         parser.add_argument('--num_cores', type=int, default=cpu_count()-1, help='Number of CPU cores to utilize')
         parser.add_argument('--dim', nargs=2, type=int, required=True, metavar=('width','height'), help='Pair of "width height" values for resultant image')
-
+        parser.add_argument('--out_type', default=None, choices=lib.image_types, type=str, help='Output image type to convert to')
         args = parser.parse_args()
         return args
 
