@@ -23,6 +23,7 @@ class Hornet(object):
         self.in_dir = args.in_dir
         self.out_dir = args.out_dir
         self.out_type = args.out_type
+        self.in_type = args.in_type
         if self.in_dir == self.out_dir: 
             warnings.warn("Output and input directories are identical.")
         if not Path(self.out_dir).exists():
@@ -95,8 +96,10 @@ class Hornet(object):
                 img.save(final_path)
 
     def extract(self):
-        self.files = list(p.resolve() for p in Path(self.in_dir).rglob("*") if p.suffix in lib.image_types)
-
+        if self.in_type is None:
+            self.files = list(p.resolve() for p in Path(self.in_dir).rglob("*") if p.suffix in lib.image_types)
+        else:
+            self.files = list(p.resolve() for p in Path(self.in_dir).rglob("*") if str(p.suffix).lower() == str(self.in_type).lower())
     @staticmethod
     def get_arg_parser():
         parser = argparse.ArgumentParser()
@@ -109,6 +112,7 @@ class Hornet(object):
         parser.add_argument('--num_cores', type=int, default=cpu_count()-1, help='Number of CPU cores to utilize')
         parser.add_argument('--dim', nargs=2, type=int, required=True, metavar=('width','height'), help='Pair of "width height" values for resultant image')
         parser.add_argument('--out_type', default=None, choices=lib.image_types, type=str, help='Output image type to convert to')
+        parser.add_argument('--in_type', default=None, choices=lib.image_types, type=str, help='Input image type to read')
         args = parser.parse_args()
         return args
 
