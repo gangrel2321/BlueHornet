@@ -80,7 +80,7 @@ class Hornet(object):
             final_path.rename(final_path.with_suffix(self.out_type)) 
 
         if img.size[0] == img.size[1]:
-            self.resize_glob(self, file)
+            self.resize_glob(file)
         else:
             if img.size[0] > img.size[1]:
                 side_cut = (img.size[0] - self.dim[0]) // 2
