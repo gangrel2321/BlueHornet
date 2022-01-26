@@ -1,7 +1,7 @@
-FROM ubuntu:16.04
+FROM ubuntu:20.04
 
-RUN apt-get update -y 
-RUN apt-get install -y \
+ARG DEBIAN_FRONTEND=noninterative
+RUN apt-get update && apt-get install -y tzdata \
 	vim \
 	cmake \
 	curl \
@@ -10,28 +10,30 @@ RUN apt-get install -y \
 	wget \
 	unzip \
 	python3 \
-	python3-pip \
-	python3-setuptools
+	python3-pip
 	
 
 # Download and unpack opencv
 RUN wget -O opencv.zip https://github.com/opencv/opencv/archive/4.x.zip 
 RUN unzip opencv.zip
 
-RUN mkdir -p build && cd build
+RUN mkdir -p build
+RUN cd build
 
 # Configure
 RUN cmake ../opencv-4.x
 
 # Build
-RUN cmake --build .
+RUN cmake -f Makefile --build .
+RUN make install
 
-# Python Dependencies 
+# Python Dependencies
 RUN python3 -m pip install --upgrade pip 
 RUN python3 -m pip install \
-	pillow \
+	Pillow \
 	numpy \
 	pandas \
 	argparse \
-	GitPython \ 
-	pybind11 
+	pybind11 \
+	GitPython 
+RUN cd .. 

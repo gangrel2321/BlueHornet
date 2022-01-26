@@ -2,7 +2,7 @@ all : docker_build
 CURRENT_DIR := $(shell pwd)
 
 docker_build :
-	docker build -t "blue_hornet:$(USER)"
+	docker build --progress plain -t "blue_hornet:$(USER)" .
 
 docker_run :
 	docker run \
@@ -14,7 +14,7 @@ docker_run :
 		bash
 
 docker_exec : 
-	docker exec -it "blue_hornet:$(USER)" bash
+	docker exec -it "blue_hornet_$(USER)" bash
 
 docker_clean : 
-	docker rm --force "blue_hornet:$(USER)"
+	docker rm --force "blue_hornet_$(USER)"
